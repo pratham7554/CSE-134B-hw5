@@ -1,69 +1,38 @@
-class RatingWidget extends HTMLElement {
+const latitude = 32.881106;
+const longitude = -117.237211;
+
+class WeatherWidget extends HTMLElement {
   constructor() {
-    super();
+      super();
 
-    this.innerHTML = '';
-    this.attachShadow({mode : 'open'});
-
-    let style = document.createElement('style');
-    style.innerHTML = `
-            span {
-              color: grey;
-              font-size: 50px;
-            }
-            span:hover,span:hover~span {
-              cursor: pointer;
-              color: orange; 
-            }
-            div {
-              float: left;
-              display: flex;
-              flex-direction: row-reverse;
-          }`;
-    this.shadowRoot.appendChild(style);
-
-    let stars = document.createElement('div');
-    for (let i = 5; i > 0; i--) {
-        let star = document.createElement('span');
-        star.textContent = '\u2605'
-        star.id = i;
-        star.addEventListener('click', this.sendRating)
-        stars.appendChild(star);
-    }
-    this.shadowRoot.appendChild(stars);
+      this.attachShadow({mode: 'open'});
+      this.fetchWeather();
   }
 
-  sendRating(event) {
-    let formData = new FormData();
-    let rating = event.target.id
-    formData.append("question", "How satsfied are you?");
-    formData.append("sentBy", "JS");
-    formData.append("rating", rating);
-
-    fetch('https://httpbin.org/post', {
-        method: 'POST',
-        headers: {
-            'X-Sent-By': 'JS'
-        },
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log(data); 
-    })
-    .catch(error => {
-        console.error('Error:', error); 
-    });
-
-    let feedbackMessage;
-    if (rating >= 4) {
-        feedbackMessage = 'Thanks for the ' + rating + ' star rating!';
-    } else {
-        feedbackMessage = 'Thanks for your feedback of ' + rating+ ' stars. We\'ll try to do better!'
-    }
-
-    event.target.parentNode.parentNode.innerHTML = feedbackMessage;
+  async fetchWeather() {
+      const response = await fetch(`https://api.weather.gov/points/${latitude},${longitude}`);
+      const weather = await response.json();
+      const responseNew = await fetch(weather.properties.forecast);
+      const weatherJson = await responseNew.json();
+      const data = weatherJson.properties.periods[0]
+      this.currentWeather = document.createElement('h1');
+      this.currentWeather.innerHTML = `Current Weather`;
+      this.conditionVal = document.createElement('h3');
+      this.temperatureVal = document.createElement('h3');
+      this.humidityVal = document.createElement('h3');
+      const picVal = document.createElement('img');
+      picVal.src = data.icon;
+      picVal.alt = 'icon';
+      this.conditionVal.innerHTML = `Condition: ` + data.shortForecast
+      this.temperatureVal.innerHTML = `Temperature: ` + data.temperature + ` ` + data.temperatureUnit
+      this.humidityVal.innerHTML = `Humidity: ` + data.relativeHumidity.value + `%`;
+      this.shadowRoot.appendChild(this.currentWeather);
+      this.shadowRoot.appendChild(picVal);
+      this.shadowRoot.appendChild(this.conditionVal);
+      this.shadowRoot.appendChild(this.temperatureVal);
+      this.shadowRoot.appendChild(this.humidityVal);
   }
 }
 
-customElements.define('rating-widget', RatingWidget);
+
+window.customElements.define('weather-widget', WeatherWidget);
