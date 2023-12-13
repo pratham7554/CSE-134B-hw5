@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="description" content="feedback">
+        <script async src="new_script copy.js"></script>
+        <link href="images/logo-no-background.png" rel="icon">
+        <title>Feedback</title>
+    </head>
+    <body>
+        <noscript>
+            <p>Widget is not available due to JavaScript's absence</p>
+        </noscript>
+        <h1>Rating Widget</h1>
+        <rating-widget>
+            <form action="https://httpbin.org/post" method="POST">
+                <label for="rating">How satsfied are you?</label>
+                <input type="hidden" name="question" value="How satisfied are you?">
+                <input type="hidden" name="sentBy" value="HTML">
+                <input type="number" name="rating" id="rating" min="1" max="5" value="0" required>
+                <button type="submit">Submit</button>
+            </form>
+        </rating-widget>
+    </body>
+</html>
